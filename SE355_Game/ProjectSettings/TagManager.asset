@@ -42,14 +42,17 @@ TagManager:
     uniqueID: 0
     locked: 0
   - name: Background
-    uniqueID: -303233233
+    uniqueID: 3991734063
+    locked: 0
+  - name: Obstacles
+    uniqueID: 1467209581
     locked: 0
   - name: Player
-    uniqueID: -827465063
+    uniqueID: 3467502233
     locked: 0
   - name: Ground
     uniqueID: 2105470877
     locked: 0
   - name: Ceiling
-    uniqueID: -810885951
+    uniqueID: 3484081345
     locked: 0
