@@ -5,6 +5,8 @@ public class PlayerController : MonoBehaviour
 {
 	private Rigidbody2D rb;
 	private GameModeManager gameManager;
+	private SpriteRenderer spriteRenderer;
+	private Animator animator;
 
 	[Header("Movement")]
 	public float moveSpeed = 5f;
@@ -22,6 +24,8 @@ public class PlayerController : MonoBehaviour
 	void Start()
 	{
 		rb = GetComponent<Rigidbody2D>();
+		spriteRenderer = GetComponent<SpriteRenderer>();
+		animator = GetComponent<Animator>();
 		rb.gravityScale = gravityStrength;
 		currentMoveSpeed = moveSpeed;
 		gameManager = FindFirstObjectByType<GameModeManager>();
@@ -30,6 +34,9 @@ public class PlayerController : MonoBehaviour
 	void Update()
 	{
 		if (isDead) return;
+
+		// Don't process input while in main menu
+		if (gameManager != null && gameManager.CurrentState == GameModeManager.GameState.MainMenu) return;
 
 		// Flip gravity with Space
 		if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
@@ -47,6 +54,9 @@ public class PlayerController : MonoBehaviour
 	void FixedUpdate()
 	{
 		if (isDead) return;
+
+		// Don't move while in main menu
+		if (gameManager != null && gameManager.CurrentState == GameModeManager.GameState.MainMenu) return;
 
 		currentMoveSpeed = Mathf.MoveTowards(
 			currentMoveSpeed,
@@ -79,5 +89,52 @@ public class PlayerController : MonoBehaviour
 		{
 			gameManager.TriggerGameOver();
 		}
+	}
+
+	/// <summary>
+	/// Called by GameModeManager when a new level starts.
+	/// Resets the current speed to the new base speed for the level.
+	/// </summary>
+	public void SetBaseSpeed(float newBaseSpeed)
+	{
+		moveSpeed = newBaseSpeed;
+		currentMoveSpeed = newBaseSpeed;
+	}
+
+	/// <summary>
+	/// Hides the knight during menu screens.
+	/// Disables the sprite, animator, and freezes the rigidbody.
+	/// </summary>
+	public void HidePlayer()
+	{
+		if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+		if (animator == null) animator = GetComponent<Animator>();
+		if (rb == null) rb = GetComponent<Rigidbody2D>();
+
+		if (spriteRenderer != null) spriteRenderer.enabled = false;
+		if (animator != null) animator.enabled = false;
+
+		rb.linearVelocity = Vector2.zero;
+		rb.gravityScale = 0f;
+		rb.bodyType = RigidbodyType2D.Kinematic;
+	}
+
+	/// <summary>
+	/// Shows the knight when a level starts.
+	/// Re-enables the sprite, animator, and restores the rigidbody.
+	/// </summary>
+	public void ShowPlayer()
+	{
+		if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+		if (animator == null) animator = GetComponent<Animator>();
+		if (rb == null) rb = GetComponent<Rigidbody2D>();
+
+		if (spriteRenderer != null) spriteRenderer.enabled = true;
+		if (animator != null) animator.enabled = true;
+
+		rb.bodyType = RigidbodyType2D.Dynamic;
+		rb.gravityScale = gravityStrength;
+		gravityUp = false;
+		isDead = false;
 	}
 }

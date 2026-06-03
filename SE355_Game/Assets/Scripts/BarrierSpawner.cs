@@ -27,9 +27,12 @@ public class BarrierSpawner : MonoBehaviour
 
 	private readonly List<BarrierPair> spawnedPairs = new List<BarrierPair>();
 	private float nextSpawnX;
+	private bool hasInitializedSpawn = false;
 
 	private float MinGapCenter => minY + gapSize * 0.5f + gapVerticalMargin;
 	private float MaxGapCenter => maxY - gapSize * 0.5f - gapVerticalMargin;
+
+	private GameModeManager gameManager;
 
 	private void Start()
 	{
@@ -44,12 +47,24 @@ public class BarrierSpawner : MonoBehaviour
 			return;
 		}
 
-		nextSpawnX = player.position.x + firstSpawnDistance;
-		SpawnUntilAhead();
+		gameManager = FindFirstObjectByType<GameModeManager>();
+
+		// Don't spawn barriers during the menu — wait until the game is playing
 	}
 
 	private void Update()
 	{
+		// Only spawn barriers while the game is actually being played
+		if (gameManager != null && gameManager.CurrentState != GameModeManager.GameState.Playing)
+			return;
+
+		// First time we enter Playing state, set up the initial spawn position
+		if (!hasInitializedSpawn)
+		{
+			nextSpawnX = player.position.x + firstSpawnDistance;
+			hasInitializedSpawn = true;
+		}
+
 		SpawnUntilAhead();
 		CleanupOldPairs();
 	}

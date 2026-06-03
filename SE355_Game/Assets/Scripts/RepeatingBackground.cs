@@ -9,10 +9,21 @@ public class RepeatingBackground : MonoBehaviour
 	[SerializeField] private int extraTiles = 6;
 	[SerializeField, Range(0f, 1f)] private float parallaxEffect = 0.3f;
 
+	[Header("Menu Auto-Scroll")]
+	[SerializeField] private float menuScrollSpeed = 3f;
+
 	private readonly List<Transform> tiles = new List<Transform>();
 	private SpriteRenderer sourceRenderer;
 	private float tileWidth;
 	private float visibleHalfWidth;
+
+	/// <summary>
+	/// An offset subtracted from the effective camera X position when the game
+	/// is in a menu state. Incremented each frame using unscaled time
+	/// so the background scrolls left-to-right even while Time.timeScale is 0.
+	/// </summary>
+	private float menuScrollOffset;
+	private GameModeManager gameManager;
 
 	private void Awake()
 	{
@@ -33,8 +44,20 @@ public class RepeatingBackground : MonoBehaviour
 		CreateTiles();
 	}
 
+	private void Start()
+	{
+		gameManager = FindFirstObjectByType<GameModeManager>();
+	}
+
 	private void LateUpdate()
 	{
+		// While in a menu, accumulate a scroll offset using unscaled delta time
+		// so the background keeps sliding even when Time.timeScale is 0.
+		if (gameManager != null && gameManager.IsInMenu)
+		{
+			menuScrollOffset += menuScrollSpeed * Time.unscaledDeltaTime;
+		}
+
 		PositionTiles();
 	}
 
@@ -86,12 +109,17 @@ public class RepeatingBackground : MonoBehaviour
 		float leftEdge = effectiveCameraX - visibleHalfWidth;
 		float startX = Mathf.Floor((leftEdge - tileWidth * 3f) / tileWidth) * tileWidth;
 
+		// Apply the menu scroll as a visual offset that wraps around tileWidth.
+		// The modulo keeps it within one tile so tiles always cover the viewport,
+		// creating a seamless infinite scroll illusion.
+		float visualShift = menuScrollOffset % tileWidth;
+
 		for (int i = 0; i < tiles.Count; i++)
 		{
 			float yPosition = targetCamera.transform.position.y + verticalOffset -
 				(sourceRenderer.sprite.bounds.center.y * transform.localScale.y);
 
-			tiles[i].position = new Vector3(startX + (i * tileWidth) + parallaxOffset, yPosition, zPosition);
+			tiles[i].position = new Vector3(startX + (i * tileWidth) + parallaxOffset + visualShift, yPosition, zPosition);
 		}
 	}
 }

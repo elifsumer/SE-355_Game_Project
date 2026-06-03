@@ -947,6 +947,7 @@ MonoBehaviour:
   verticalOffset: 0
   zPosition: 1
   extraTiles: 6
+  parallaxEffect: 0.3
 --- !u!1 &2118401000
 GameObject:
   m_ObjectHideFlags: 0
@@ -991,10 +992,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e890df2ea5614c68bcde578913531de9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingMode: 0
-  level1Duration: 30
-  level2Duration: 60
-  level3Duration: 120
+  levelDuration: 30
+  level1BaseSpeed: 5
+  level2BaseSpeed: 9
+  level3BaseSpeed: 13
+  infiniteBaseSpeed: 5
+  playButtonTexture: {fileID: 2800000, guid: f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6, type: 3}
+  level1ButtonTexture: {fileID: 2800000, guid: a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7, type: 3}
+  level2ButtonTexture: {fileID: 2800000, guid: b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8, type: 3}
+  level3ButtonTexture: {fileID: 2800000, guid: c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9, type: 3}
 --- !u!1 &2128402000
 GameObject:
   m_ObjectHideFlags: 0
@@ -1044,13 +1050,16 @@ MonoBehaviour:
   targetCamera: {fileID: 519420031}
   spawnAheadDistance: 45
   firstSpawnDistance: 28
-  spacing: 15
   cleanupBehindDistance: 35
+  spacing: 15
   minY: -14
   maxY: 14
   gapSize: 12
   barrierWidth: 4.5
   gapVerticalMargin: 2
+  patternBreatherGap: 8
+  corridorChance: 0.3
+  staircaseChance: 0.25
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
