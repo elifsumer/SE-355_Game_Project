@@ -57,6 +57,12 @@ public class GameModeManager : MonoBehaviour
 	private static MenuScreen nextSceneMenuScreen = MenuScreen.Play;
 
 	/// <summary>
+	/// When set, the scene reload triggered by R will auto-start this mode
+	/// instead of showing the main menu.
+	/// </summary>
+	private static GameMode? pendingRestartMode = null;
+
+	/// <summary>
 	/// Tracks the highest level the player has unlocked (1 = only Level 1,
 	/// 2 = Level 1 & 2, 3 = all). Persists across scene reloads via static.
 	/// </summary>
@@ -83,13 +89,22 @@ public class GameModeManager : MonoBehaviour
 
 	private void Start()
 	{
+		playerController = FindFirstObjectByType<PlayerController>();
+		LoadButtonTextures();
+
+		// If R was pressed to restart, jump straight into the same mode
+		if (pendingRestartMode.HasValue)
+		{
+			GameMode modeToRestart = pendingRestartMode.Value;
+			pendingRestartMode = null;
+			StartPlaying(modeToRestart);
+			return;
+		}
+
 		currentState = GameState.MainMenu;
 		currentMenuScreen = nextSceneMenuScreen;
 		nextSceneMenuScreen = MenuScreen.Play; // reset for future loads
 		Time.timeScale = 0f;
-
-		playerController = FindFirstObjectByType<PlayerController>();
-		LoadButtonTextures();
 
 		// Hide the knight during menus
 		if (playerController != null)
@@ -120,6 +135,7 @@ public class GameModeManager : MonoBehaviour
 				|| currentState == GameState.GameWon
 				|| currentState == GameState.Playing))
 		{
+			pendingRestartMode = currentMode;
 			Time.timeScale = 1f;
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 			return;
