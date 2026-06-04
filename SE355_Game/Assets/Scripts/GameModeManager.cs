@@ -114,8 +114,11 @@ public class GameModeManager : MonoBehaviour
 	{
 		Keyboard keyboard = Keyboard.current;
 
-		// Restart with R key from game over or game won
-		if (keyboard != null && keyboard.rKey.wasPressedThisFrame)
+		// Restart with R key from game over, game won, or while playing
+		if (keyboard != null && keyboard.rKey.wasPressedThisFrame
+			&& (currentState == GameState.GameOver
+				|| currentState == GameState.GameWon
+				|| currentState == GameState.Playing))
 		{
 			Time.timeScale = 1f;
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
